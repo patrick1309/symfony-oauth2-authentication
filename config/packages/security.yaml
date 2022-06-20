@@ -16,7 +16,9 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-            custom_authenticator: App\Security\GoogleAuthenticator
+            custom_authenticator:
+                - App\Security\GoogleAuthenticator
+                - App\Security\FacebookAuthenticator
 
             logout:
                 path: app_logout

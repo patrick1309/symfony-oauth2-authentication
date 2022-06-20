@@ -25,7 +25,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private $password;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $googleId;
+    private $authService;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private $externalId;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private $avatar;
@@ -103,14 +106,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function getGoogleId(): ?string
+    public function getExternalId(): ?string
     {
-        return $this->googleId;
+        return $this->externalId;
     }
 
-    public function setGoogleId(?string $googleId): self
+    public function setExternalId(?string $externalId): self
     {
-        $this->googleId = $googleId;
+        $this->externalId = $externalId;
 
         return $this;
     }
@@ -135,6 +138,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setHostedDomain(?string $hostedDomain): self
     {
         $this->hostedDomain = $hostedDomain;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of authService
+     */ 
+    public function getAuthService(): ?string
+    {
+        return $this->authService;
+    }
+
+    /**
+     * Set the value of authService
+     *
+     * @return  self
+     */ 
+    public function setAuthService(?string $authService)
+    {
+        $this->authService = $authService;
 
         return $this;
     }
