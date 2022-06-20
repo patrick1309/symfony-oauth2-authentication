@@ -2,29 +2,18 @@
 
 namespace App\Security;
 
-use App\Entity\User;
-use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Client\Provider\GoogleUser;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouterInterface;
-use KnpU\OAuth2ClientBundle\Client\ClientRegistry;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use KnpU\OAuth2ClientBundle\Security\Authenticator\OAuth2Authenticator;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
-class GoogleAuthenticator extends OAuth2Authenticator
+class GoogleAuthenticator extends ServiceAuthenticator
 {
-    public function __construct(
-        private ClientRegistry $clientRegistry,
-        private EntityManagerInterface $entityManager,
-        private RouterInterface $router
-    )
-    {}
 
     public function supports(Request $request): ?bool
     {
@@ -40,27 +29,7 @@ class GoogleAuthenticator extends OAuth2Authenticator
             new UserBadge($accessToken->getToken(), function() use ($accessToken, $client) {
                 /** @var GoogleUser $googleUser */
                 $googleUser = $client->fetchUserFromToken($accessToken);
-                $email = $googleUser->getEmail();
-
-                // have they logged in with Google before? Easy!
-                $existingUser = $this->entityManager->getRepository(User::class)->findOneBy([
-                    'authService' => 'google',
-                    'externalId' => $googleUser->getId()
-                ]);
-
-                //User doesnt exist, we create it !
-                if (!$existingUser) {
-                    $existingUser = new User();
-                    $existingUser->setEmail($email);
-                    $existingUser->setAuthService('google');
-                    $existingUser->setExternalId($googleUser->getId());
-                    $existingUser->setHostedDomain($googleUser->getHostedDomain());
-                    $this->entityManager->persist($existingUser);
-                }
-                $existingUser->setAvatar($googleUser->getAvatar());
-                $this->entityManager->flush();
-
-                return $existingUser;
+                return $this->getDBUser('google', $googleUser);
             })
         );
     }

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -24,17 +26,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', nullable: true)]
     private $password;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $authService;
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserAuthentication::class, orphanRemoval: true)]
+    private $userAuthentications;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $externalId;
-
-    #[ORM\Column(type: 'text', nullable: true)]
-    private $avatar;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $hostedDomain;
+    public function __construct()
+    {
+        $this->userAuthentications = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -106,58 +104,32 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // $this->plainPassword = null;
     }
 
-    public function getExternalId(): ?string
-    {
-        return $this->externalId;
-    }
-
-    public function setExternalId(?string $externalId): self
-    {
-        $this->externalId = $externalId;
-
-        return $this;
-    }
-
-    public function getAvatar(): ?string
-    {
-        return $this->avatar;
-    }
-
-    public function setAvatar(?string $avatar): self
-    {
-        $this->avatar = $avatar;
-
-        return $this;
-    }
-
-    public function getHostedDomain(): ?string
-    {
-        return $this->hostedDomain;
-    }
-
-    public function setHostedDomain(?string $hostedDomain): self
-    {
-        $this->hostedDomain = $hostedDomain;
-
-        return $this;
-    }
-
     /**
-     * Get the value of authService
-     */ 
-    public function getAuthService(): ?string
+     * @return Collection<int, UserAuthentication>
+     */
+    public function getUserAuthentications(): Collection
     {
-        return $this->authService;
+        return $this->userAuthentications;
     }
 
-    /**
-     * Set the value of authService
-     *
-     * @return  self
-     */ 
-    public function setAuthService(?string $authService)
+    public function addUserAuthentication(UserAuthentication $userAuthentication): self
     {
-        $this->authService = $authService;
+        if (!$this->userAuthentications->contains($userAuthentication)) {
+            $this->userAuthentications[] = $userAuthentication;
+            $userAuthentication->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserAuthentication(UserAuthentication $userAuthentication): self
+    {
+        if ($this->userAuthentications->removeElement($userAuthentication)) {
+            // set the owning side to null (unless already changed)
+            if ($userAuthentication->getUser() === $this) {
+                $userAuthentication->setUser(null);
+            }
+        }
 
         return $this;
     }
