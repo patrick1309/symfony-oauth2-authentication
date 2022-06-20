@@ -1,6 +1,6 @@
-# Symgfony Google Authenticator
+# Symfony Custom Authenticators
 
-Small app implementing Google Authentication using OAuth2 Client
+Small app implementing Google and Facebook Authentication using OAuth2 Client
 
 ## Documentation
 
@@ -10,6 +10,8 @@ Small app implementing Google Authentication using OAuth2 Client
 
 * PHP / Sql
 * Symfony CLI
+* Google App with OAuth2
+* Facebook App 
 
 ## Install
 
@@ -21,6 +23,7 @@ composer install
 symfony server:start -d
 ```
 
-## Usage
+Then you need to configure in your .env.local
 
-Go to /connect/google to start with Google Authentication.
+* GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET from your google app dev console
+* FACEBOOK_CLIENT_ID and FACEBOOK_CLIENT_SECRET from your facebook developer app
